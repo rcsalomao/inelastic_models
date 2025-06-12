@@ -13,9 +13,10 @@ add_executable(
     inelastic_models
     src/inelastic_models.cpp
     src/common.cpp
+    src/vonmises.cpp
     src/vonmises_generalized.cpp
-    src/mazars_mu_model.cpp
     src/mazars_model.cpp
+    src/mazars_mu_model.cpp
 )
 
 target_include_directories(

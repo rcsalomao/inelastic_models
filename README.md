@@ -6,14 +6,14 @@ This is a repository with some inelastic models implementations. Such models are
 
 Each one of the models are implemented on their respective files. The available models are:
 
-- ~~Von Mises [1].~~
+- Von Mises [1].
 - Generalized Von Mises [2, 3].
-- ~~Monotonic loading Mazars.[4, 5]~~
+- Monotonic loading Mazars.[4, 5]
 - Cyclic loading Mazars μ-Model [6, 7].
 
 ## Dependecies
 
-This repo has the Eigen and gnuplot-iostream libraries as dependencies for numerical calculations and graph plotting, respectively.
+This repo has the **Eigen** and **gnuplot-iostream** libraries as dependencies for numerical calculations and graph plotting, respectively.
 
 ## References
 
