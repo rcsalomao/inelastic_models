@@ -12,6 +12,10 @@ namespace mazars_mu_model {
 std::vector<std::tuple<double, double>> run(std::vector<double> hist);
 }  // namespace mazars_mu_model
 
+namespace mazars_model {
+std::vector<std::tuple<double, double>> run(std::vector<double> hist);
+}  // namespace mazars_model
+
 int main() {
     auto vm_generalized = [] {
         auto hist = common::create_hist({{0, 0.04, 50}});
@@ -48,6 +52,21 @@ int main() {
         gp.send1d(res);
         gp.flush();
     };
+    auto mazars_model = [] {
+        auto hist_traction = common::create_hist({{0, 0.0006, 100}});
+        auto res_traction = mazars_model::run(hist_traction);
+        auto hist_compression = common::create_hist({{0, -0.008, 100}});
+        auto res_compression = mazars_model::run(hist_compression);
+
+        Gnuplot gp;
+        gp << "unset key\n";
+        gp << "set grid\n";
+        gp << "plot '-' with lines lc 8 lw 2, '-' with lines lc 8 lw 2\n";
+        gp.send1d(res_traction);
+        gp.send1d(res_compression);
+        gp.flush();
+    };
     // vm_generalized();
-    mu_model();
+    // mu_model();
+    mazars_model();
 };

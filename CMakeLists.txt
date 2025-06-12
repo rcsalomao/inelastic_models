@@ -15,6 +15,7 @@ add_executable(
     src/common.cpp
     src/vonmises_generalized.cpp
     src/mazars_mu_model.cpp
+    src/mazars_model.cpp
 )
 
 target_include_directories(

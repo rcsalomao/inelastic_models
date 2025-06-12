@@ -110,10 +110,10 @@ vector<std::tuple<double, double>> run(vector<double> hist) {
     ModelParams mp{0.5 * pow(7e-5, 2) + 7e-5,
                    0.5 * pow(3e-4, 2) + 3e-4,
                    0.995,
-                   10000,
+                   15000,
                    0.85,
-                   1000,
-                   0.8};
+                   1620,
+                   1.0};
 
     // initial values
     double Yt_0 = mp.E0t;
