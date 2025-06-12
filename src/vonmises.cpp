@@ -1,10 +1,9 @@
+#include "vonmises.hpp"
+
 #include <Eigen/Dense>
 #include <algorithm>
-#include <print>
 #include <ranges>
 #include <vector>
-
-#include "common.hpp"
 
 namespace vonmises {
 
@@ -12,18 +11,19 @@ namespace rg = std::ranges;
 namespace vw = std::ranges::views;
 using Eigen::Matrix3d;
 using Eigen::Vector3d;
-using std::println;
 using std::vector;
 
-vector<std::tuple<double, double>> run(vector<double> hist) {
+vector<std::tuple<double, double>> run(common::MaterialProperties& mat_p,
+                                       ModelParams& mod_p,
+                                       vector<double> hist) {
     // material params
-    double poisson = 0.0;
-    double young = 100;
+    double young = mat_p.young;
+    double poisson = mat_p.poisson;
 
     // vonmises params
-    double sigma_y = 0.4 * sqrt(2.0 / 3.0);
-    double Hiso = 20;
-    double Hkin = 0;
+    double sigma_y = mod_p.sigma_y;
+    double Hiso = mod_p.Hiso;
+    double Hkin = mod_p.Hkin;
 
     // initial values
     Matrix3d backstress_0 = Matrix3d::Zero();

@@ -8,6 +8,11 @@ using Eigen::Matrix3d;
 using Eigen::Vector3d;
 using std::vector;
 
+struct MaterialProperties {
+    double young;
+    double poisson;
+};
+
 Matrix3d strain_to_stress(const Matrix3d& strain, double young, double poisson);
 
 Matrix3d stress_to_strain(const Matrix3d& stress, double young, double poisson);

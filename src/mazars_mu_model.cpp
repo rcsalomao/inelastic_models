@@ -1,6 +1,7 @@
+#include "mazars_mu_model.hpp"
+
 #include <Eigen/Dense>
 #include <algorithm>
-// #include <print>
 #include <iostream>
 #include <ranges>
 #include <vector>
@@ -13,7 +14,6 @@ namespace rg = std::ranges;
 namespace vw = std::ranges::views;
 using Eigen::Matrix3d;
 using Eigen::Vector3d;
-using std::println;
 using std::vector;
 
 Vector3d calc_valores_positivos(Vector3d& valores_principais) {
@@ -61,27 +61,13 @@ double calc_D(double Y, double Y0, double A, double B) {
     return 1 - Y0 * (1 - A) / Y - A * std::pow(std::numbers::e, -B * (Y - Y0));
 }
 
-struct ModelParams {
-    double E0t;
-    double E0c;
-    double At;
-    double Bt;
-    double Ac;
-    double Bc;
-    double k;
-
-    ModelParams(double E0t, double E0c, double At, double Bt, double Ac,
-                double Bc, double k)
-        : E0t{E0t}, E0c{E0c}, At{At}, Bt{Bt}, Ac{Ac}, Bc{Bc}, k{k} {};
-};
-
 std::tuple<double, double, double> calc_D_Yt_Yc(Matrix3d& sigma, double young,
                                                 double poisson, double Yt,
-                                                double Yc, ModelParams& mp) {
+                                                double Yc, ModelParams& mod_p) {
     auto sigma_princ = common::calc_valores_principais(sigma);
     auto sigma_pos = calc_valores_positivos(sigma_princ);
     double r = calc_r(sigma_pos, sigma_princ);
-    double Y0 = r * mp.E0t + (1 - r) * mp.E0c;
+    double Y0 = r * mod_p.epsilon_d0t + (1 - r) * mod_p.epsilon_d0c;
 
     auto epsilon_princ =
         common::sigma_princ_to_epsilon_princ(sigma_princ, young, poisson);
@@ -93,31 +79,24 @@ std::tuple<double, double, double> calc_D_Yt_Yc(Matrix3d& sigma, double young,
     Yc = std::max(Ec, Yc);
     double Y = r * Yt + (1 - r) * Yc;
 
-    double A = calc_A(mp.At, mp.Ac, r, mp.k);
-    double B = calc_B(mp.Bt, mp.Bc, r);
+    double A = calc_A(mod_p.At, mod_p.Ac, r, mod_p.k);
+    double B = calc_B(mod_p.Bt, mod_p.Bc, r);
 
     double D = calc_D(Y, Y0, A, B);
 
     return {D, Yt, Yc};
 }
 
-vector<std::tuple<double, double>> run(vector<double> hist) {
+vector<std::tuple<double, double>> run(common::MaterialProperties& mat_p,
+                                       ModelParams& mod_p,
+                                       vector<double> hist) {
     // material params
-    double poisson = 0.21;
-    double young0 = 3000;
-
-    // mu model params
-    ModelParams mp{0.5 * pow(7e-5, 2) + 7e-5,
-                   0.5 * pow(3e-4, 2) + 3e-4,
-                   0.995,
-                   15000,
-                   0.85,
-                   1620,
-                   1.0};
+    double young0 = mat_p.young;
+    double poisson = mat_p.poisson;
 
     // initial values
-    double Yt_0 = mp.E0t;
-    double Yc_0 = mp.E0c;
+    double Yt_0 = mod_p.epsilon_d0t;
+    double Yc_0 = mod_p.epsilon_d0c;
     double dano_0 = 0;
 
     vector<double> strains{0.0};
@@ -133,7 +112,7 @@ vector<std::tuple<double, double>> run(vector<double> hist) {
         double young = (1 - dano_0) * young0;
         Matrix3d sigma_TR = common::strain_to_stress(epsilon_1, young, poisson);
         auto [dano_1, Yt_1, Yc_1] =
-            calc_D_Yt_Yc(sigma_TR, young, poisson, Yt_0, Yc_0, mp);
+            calc_D_Yt_Yc(sigma_TR, young, poisson, Yt_0, Yc_0, mod_p);
         young = (1 - dano_1) * young0;
         Matrix3d sigma_1 = common::strain_to_stress(epsilon_1, young, poisson);
 

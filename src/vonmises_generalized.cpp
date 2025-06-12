@@ -1,3 +1,5 @@
+#include "vonmises_generalized.hpp"
+
 #include <Eigen/Dense>
 #include <algorithm>
 #include <print>
@@ -12,7 +14,6 @@ namespace rg = std::ranges;
 namespace vw = std::ranges::views;
 using Eigen::Matrix3d;
 using Eigen::Vector3d;
-using std::println;
 using std::vector;
 
 double calc_lambda(double f, double H, double G, Matrix3d& Sigma_TR,
@@ -32,7 +33,7 @@ double calc_lambda(double f, double H, double G, Matrix3d& Sigma_TR,
     auto lambdas = vector<double>{
         std::from_range, vl | vw::filter([](auto l) { return l >= 0; })};
     if (lambdas.empty()) {
-        println("[ERROR] Couldn't find suitable lambdas.");
+        std::println("[ERROR] Couldn't find suitable lambdas.");
         exit(2);
     }
 
@@ -41,17 +42,19 @@ double calc_lambda(double f, double H, double G, Matrix3d& Sigma_TR,
     return lambda_1;
 }
 
-vector<std::tuple<double, double>> run(vector<double> hist) {
+vector<std::tuple<double, double>> run(common::MaterialProperties& mat_p,
+                                       vonmises_generalized::ModelParams& mod_p,
+                                       vector<double> hist) {
     // material params
-    double poisson = 0.3;
-    double young = 100;
+    double young = mat_p.young;
+    double poisson = mat_p.poisson;
 
     // vonmises params
-    double sigma_y = 0.3 * sqrt(2.0 / 3.0);
-    double Hiso = 20;
-    double Hkin = 0;
-    double beta = 0.1 * sqrt(2.0 / 3.0);
-    double delta = 20;
+    double sigma_y = mod_p.sigma_y;
+    double Hiso = mod_p.Hiso;
+    double Hkin = mod_p.Hkin;
+    double beta = mod_p.beta;
+    double delta = mod_p.delta;
 
     // initial values
     Matrix3d s_0 = Matrix3d::Zero();

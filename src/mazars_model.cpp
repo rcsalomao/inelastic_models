@@ -1,7 +1,8 @@
+#include "mazars_model.hpp"
+
 #include <Eigen/Dense>
 #include <algorithm>
 #include <iostream>
-#include <print>
 #include <ranges>
 #include <vector>
 
@@ -13,7 +14,6 @@ namespace rg = std::ranges;
 namespace vw = std::ranges::views;
 using Eigen::Matrix3d;
 using Eigen::Vector3d;
-using std::println;
 using std::vector;
 
 Vector3d calc_valores_positivos(Vector3d& valores_principais) {
@@ -44,20 +44,9 @@ double calc_Di(double epsilon_equiv, double epsilon_d0, double Ai, double Bi) {
            Ai * std::pow(std::numbers::e, -Bi * (epsilon_equiv - epsilon_d0));
 }
 
-struct ModelParams {
-    double epsilon_d0;
-    double At;
-    double Bt;
-    double Ac;
-    double Bc;
-
-    ModelParams(double epsilon_d0, double At, double Bt, double Ac, double Bc)
-        : epsilon_d0{epsilon_d0}, At{At}, Bt{Bt}, Ac{Ac}, Bc{Bc} {};
-};
-
 std::tuple<double, double> calc_D_kappa(Matrix3d& sigma, double young,
                                         double poisson, double dano,
-                                        double kappa, ModelParams& mp) {
+                                        double kappa, ModelParams& mod_p) {
     auto sigma_princ = common::calc_valores_principais(sigma);
     auto sigma_pos = calc_valores_positivos(sigma_princ);
 
@@ -71,24 +60,25 @@ std::tuple<double, double> calc_D_kappa(Matrix3d& sigma, double young,
             common::sigma_princ_to_epsilon_princ(sigma_pos, young, poisson);
         double alpha_t = calc_alpha_t(epsilon_t, epsilon_pos, epsilon_equiv);
         double alpha_c = 1 - alpha_t;
-        double D_t = calc_Di(epsilon_equiv, mp.epsilon_d0, mp.At, mp.Bt);
-        double D_c = calc_Di(epsilon_equiv, mp.epsilon_d0, mp.Ac, mp.Bc);
+        double D_t =
+            calc_Di(epsilon_equiv, mod_p.epsilon_d0, mod_p.At, mod_p.Bt);
+        double D_c =
+            calc_Di(epsilon_equiv, mod_p.epsilon_d0, mod_p.Ac, mod_p.Bc);
         dano = alpha_t * D_t + alpha_c * D_c;
         kappa = epsilon_equiv;
     }
     return {dano, kappa};
 }
 
-vector<std::tuple<double, double>> run(vector<double> hist) {
+vector<std::tuple<double, double>> run(common::MaterialProperties& mat_p,
+                                       ModelParams& mod_p,
+                                       vector<double> hist) {
     // material params
-    double poisson = 0.21;
-    double young0 = 3000;
-
-    // mu model params
-    ModelParams mp{0.5 * pow(7e-5, 2) + 7e-5, 0.995, 10000, 0.85, 2000};
+    double young0 = mat_p.young;
+    double poisson = mat_p.poisson;
 
     // initial values
-    double kappa_0 = mp.epsilon_d0;
+    double kappa_0 = mod_p.epsilon_d0;
     double dano_0 = 0;
 
     vector<double> strains{0.0};
@@ -104,7 +94,7 @@ vector<std::tuple<double, double>> run(vector<double> hist) {
         double young = (1 - dano_0) * young0;
         Matrix3d sigma_TR = common::strain_to_stress(epsilon_1, young, poisson);
         auto [dano_1, kappa_1] =
-            calc_D_kappa(sigma_TR, young, poisson, dano_0, kappa_0, mp);
+            calc_D_kappa(sigma_TR, young, poisson, dano_0, kappa_0, mod_p);
         young = (1 - dano_1) * young0;
         Matrix3d sigma_1 = common::strain_to_stress(epsilon_1, young, poisson);
 

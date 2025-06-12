@@ -1,29 +1,17 @@
 #include <gnuplot-iostream.h>
 
-#include <print>
-
-#include "common.hpp"
-
-namespace vonmises {
-std::vector<std::tuple<double, double>> run(std::vector<double> hist);
-}  // namespace vonmises
-
-namespace vonmises_generalized {
-std::vector<std::tuple<double, double>> run(std::vector<double> hist);
-}  // namespace vonmises_generalized
-
-namespace mazars_model {
-std::vector<std::tuple<double, double>> run(std::vector<double> hist);
-}  // namespace mazars_model
-
-namespace mazars_mu_model {
-std::vector<std::tuple<double, double>> run(std::vector<double> hist);
-}  // namespace mazars_mu_model
+#include "mazars_model.hpp"
+#include "mazars_mu_model.hpp"
+#include "vonmises.hpp"
+#include "vonmises_generalized.hpp"
 
 int main() {
     auto vm = [] {
+        common::MaterialProperties mat_p{100, 0.21};
+        vonmises::ModelParams mod_p{0.4 * sqrt(2.0 / 3.0), 20, 0};
+
         auto hist = common::create_hist({{0, 0.04, 50}});
-        auto res = vonmises::run(hist);
+        auto res = vonmises::run(mat_p, mod_p, hist);
 
         Gnuplot gp;
         gp << "unset key\n";
@@ -33,8 +21,12 @@ int main() {
         gp.flush();
     };
     auto vm_generalized = [] {
+        common::MaterialProperties mat_p{100, 0.21};
+        vonmises_generalized::ModelParams mod_p{0.3 * sqrt(2.0 / 3.0), 20, 0,
+                                                0.1 * sqrt(2.0 / 3.0), 20};
+
         auto hist = common::create_hist({{0, 0.04, 50}});
-        auto res = vonmises_generalized::run(hist);
+        auto res = vonmises_generalized::run(mat_p, mod_p, hist);
 
         Gnuplot gp;
         gp << "unset key\n";
@@ -44,10 +36,15 @@ int main() {
         gp.flush();
     };
     auto mazars_model = [] {
+        common::MaterialProperties mat_p{3000, 0.21};
+        mazars_model::ModelParams mod_p{0.5 * pow(7e-5, 2) + 7e-5, 0.995, 10000,
+                                        0.85, 2000};
+
         auto hist_traction = common::create_hist({{0, 0.0006, 100}});
-        auto res_traction = mazars_model::run(hist_traction);
+        auto res_traction = mazars_model::run(mat_p, mod_p, hist_traction);
         auto hist_compression = common::create_hist({{0, -0.008, 100}});
-        auto res_compression = mazars_model::run(hist_compression);
+        auto res_compression =
+            mazars_model::run(mat_p, mod_p, hist_compression);
 
         Gnuplot gp;
         gp << "unset key\n";
@@ -58,6 +55,15 @@ int main() {
         gp.flush();
     };
     auto mu_model = [] {
+        common::MaterialProperties mat_p{3000, 0.21};
+        mazars_mu_model::ModelParams mod_p{0.5 * pow(7e-5, 2) + 7e-5,
+                                           0.5 * pow(3e-4, 2) + 3e-4,
+                                           0.995,
+                                           15000,
+                                           0.85,
+                                           1620,
+                                           1.0};
+
         auto hist = common::create_hist({{0, 0.00015, 100},
                                          {0.00015, 0, 100},
                                          {0, -0.002, 100},
@@ -72,7 +78,7 @@ int main() {
                                          {-0.006, 0, 100},
                                          {0, 0.0006, 100},
                                          {0.0006, 0, 100}});
-        auto res = mazars_mu_model::run(hist);
+        auto res = mazars_mu_model::run(mat_p, mod_p, hist);
 
         Gnuplot gp;
         gp << "unset key\n";
