@@ -23,18 +23,26 @@ void plot(auto& data, std::string titulo) {
 int main() {
     auto vm = [] {
         common::MaterialProperties mat_p{100, 0.21};
-        vonmises::ModelParams mod_p{0.4 * sqrt(2.0 / 3.0), 20, 0};
+        vonmises::ModelParams mod_p{0.4 * sqrt(2.0 / 3.0), 10, 10};
 
-        auto hist = common::create_hist({{0, 0.04, 50}});
+        auto hist = common::create_hist({{0, 0.02, 90},
+                                         {0.02, -0.01, 90},
+                                         {-0.01, 0.03, 90},
+                                         {0.03, 0.02, 90},
+                                         {0.02, 0.04, 90}});
         auto res = vonmises::run(mat_p, mod_p, hist);
         plot(res, "Von Mises Model");
     };
     auto vm_generalized = [] {
         common::MaterialProperties mat_p{100, 0.21};
-        vonmises_generalized::ModelParams mod_p{0.3 * sqrt(2.0 / 3.0), 20, 0,
-                                                0.1 * sqrt(2.0 / 3.0), 20};
+        vonmises_generalized::ModelParams mod_p{0.2 * sqrt(2.0 / 3.0), 10, 10,
+                                                0.2 * sqrt(2.0 / 3.0), 5};
 
-        auto hist = common::create_hist({{0, 0.04, 50}});
+        auto hist = common::create_hist({{0, 0.02, 90},
+                                         {0.02, -0.01, 90},
+                                         {-0.01, 0.03, 90},
+                                         {0.03, 0.02, 90},
+                                         {0.02, 0.04, 90}});
         auto res = vonmises_generalized::run(mat_p, mod_p, hist);
 
         plot(res, "Generalized Von Mises Model");
