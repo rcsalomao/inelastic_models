@@ -5,6 +5,21 @@
 #include "vonmises.hpp"
 #include "vonmises_generalized.hpp"
 
+void plot(auto& data, std::string titulo) {
+    Gnuplot gp;
+    gp << "set terminal qt noraise enhanced font 'Utopia,13'\n";
+    gp << "unset key\n";
+    gp << "set grid\n";
+    gp << "set xlabel '𝜀'\n";
+    gp << "set ylabel '𝜎'\n";
+    gp << "set xtics font ',10'\n";
+    gp << "set ytics font ',10'\n";
+    gp << "set title '" << titulo << "'\n";
+    gp << "plot '-' with lines lc 8 lw 2\n";
+    gp.send1d(data);
+    gp.flush();
+}
+
 int main() {
     auto vm = [] {
         common::MaterialProperties mat_p{100, 0.21};
@@ -12,13 +27,7 @@ int main() {
 
         auto hist = common::create_hist({{0, 0.04, 50}});
         auto res = vonmises::run(mat_p, mod_p, hist);
-
-        Gnuplot gp;
-        gp << "unset key\n";
-        gp << "set grid\n";
-        gp << "plot '-' with lines lc 8 lw 2\n";
-        gp.send1d(res);
-        gp.flush();
+        plot(res, "Von Mises Model");
     };
     auto vm_generalized = [] {
         common::MaterialProperties mat_p{100, 0.21};
@@ -28,12 +37,7 @@ int main() {
         auto hist = common::create_hist({{0, 0.04, 50}});
         auto res = vonmises_generalized::run(mat_p, mod_p, hist);
 
-        Gnuplot gp;
-        gp << "unset key\n";
-        gp << "set grid\n";
-        gp << "plot '-' with lines lc 8 lw 2\n";
-        gp.send1d(res);
-        gp.flush();
+        plot(res, "Generalized Von Mises Model");
     };
     auto mazars_model = [] {
         common::MaterialProperties mat_p{3000, 0.21};
@@ -47,8 +51,14 @@ int main() {
             mazars_model::run(mat_p, mod_p, hist_compression);
 
         Gnuplot gp;
+        gp << "set terminal qt noraise enhanced font 'Utopia,13'\n";
         gp << "unset key\n";
         gp << "set grid\n";
+        gp << "set xlabel '𝜀'\n";
+        gp << "set ylabel '𝜎'\n";
+        gp << "set xtics font ',10'\n";
+        gp << "set ytics font ',10'\n";
+        gp << "set title 'Mazars Model'\n";
         gp << "plot '-' with lines lc 8 lw 2, '-' with lines lc 8 lw 2\n";
         gp.send1d(res_traction);
         gp.send1d(res_compression);
@@ -66,26 +76,18 @@ int main() {
 
         auto hist = common::create_hist({{0, 0.00015, 100},
                                          {0.00015, 0, 100},
-                                         {0, -0.002, 100},
-                                         {-0.002, 0, 100},
+                                         {0, -0.001, 100},
+                                         {-0.001, 0, 100},
                                          {0, 0.0002, 100},
                                          {0.0002, 0, 100},
-                                         {0, -0.004, 100},
-                                         {-0.004, 0, 100},
+                                         {0, -0.003, 100},
+                                         {-0.003, 0, 100},
                                          {0, 0.0003, 100},
                                          {0.0003, 0, 100},
-                                         {0, -0.006, 100},
-                                         {-0.006, 0, 100},
-                                         {0, 0.0006, 100},
-                                         {0.0006, 0, 100}});
+                                         {0, -0.005, 100}});
         auto res = mazars_mu_model::run(mat_p, mod_p, hist);
 
-        Gnuplot gp;
-        gp << "unset key\n";
-        gp << "set grid\n";
-        gp << "plot '-' with lines lc 8 lw 2\n";
-        gp.send1d(res);
-        gp.flush();
+        plot(res, "Mazars μ-Model");
     };
 
     vm();
