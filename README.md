@@ -15,6 +15,18 @@ Each one of the models are implemented on their respective files. The available 
 
 This repo has the **Eigen** and **gnuplot-iostream** libraries as dependencies for numerical calculations and graph plotting, respectively.
 
+## Examples
+
+Some examples for the implemented models (found in the 'src/inelastic_models.cpp' file) are presented:
+
+<img src="./etc/readme_assets/vm.png" width="470" height="360" style="display: block; margin: 0 auto" />
+<br>
+<img src="./etc/readme_assets/gvm.png" width="470" height="360" style="display: block; margin: 0 auto" />
+<br>
+<img src="./etc/readme_assets/mm.png" width="470" height="360" style="display: block; margin: 0 auto" />
+<br>
+<img src="./etc/readme_assets/mmm.png" width="470" height="360" style="display: block; margin: 0 auto" />
+
 ## References
 
 [1]: Auricchio, Ferdinando, & Beirão da Veiga, L. (2003). On a new integration scheme for von‐mises plasticity with linear hardening. International Journal for Numerical Methods in Engineering, 56(10), 1375–1396. https://doi.org/10.1002/nme.612 
