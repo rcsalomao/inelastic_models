@@ -1,3 +1,5 @@
+#pragma once
+
 namespace gel {
 
 void printAij3x3(double const* A);
