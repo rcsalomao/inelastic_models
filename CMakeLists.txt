@@ -19,7 +19,6 @@ target_sources(
     ./src/vonmises_generalized.cpp
     ./src/mazars_model.cpp
     ./src/mazars_mu_model.cpp
-    ./lib/gel/gel.cpp
 )
 
 target_compile_features(
@@ -33,7 +32,6 @@ target_include_directories(
     PRIVATE
     ~/.local/include
     ./src
-    ./lib/gel
 )
 
 target_compile_options(
@@ -56,6 +54,7 @@ target_link_directories(
 target_link_libraries(
     inelastic_models
     PRIVATE
+    gel
     -lboost_iostreams
     -lboost_system
     -lboost_filesystem
@@ -65,4 +64,24 @@ target_link_options(
     inelastic_models
     PRIVATE
     # -fsanitize=address,undefined
+)
+
+add_library(
+    gel
+    STATIC
+    ./lib/gel/gel.cpp
+)
+
+target_include_directories(
+    gel
+    PUBLIC
+    ./lib/gel
+)
+
+target_compile_options(
+    gel
+    PRIVATE
+    -DNDEBUG
+    -O3
+    -mavx2
 )
